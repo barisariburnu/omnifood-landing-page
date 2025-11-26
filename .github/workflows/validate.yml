@@ -1,0 +1,43 @@
+name: HTML Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-html:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install HTML validator
+      run: npm install -g html-validate
+    
+    - name: Validate HTML
+      run: |
+        echo "Validating HTML files..."
+        html-validate "*.html"
+    
+    - name: Check for console.log in JavaScript
+      run: |
+        echo "Checking for debug statements..."
+        ! grep -r "console.log" resources/js/ || echo "Warning: console.log statements found"
+    
+    - name: Validate CSS (basic check)
+      run: |
+        echo "Checking CSS syntax..."
+        if command -v csslint &> /dev/null; then
+          csslint resources/css/
+        else
+          echo "CSSLint not available, skipping CSS validation"
+        fi
+      continue-on-error: true
